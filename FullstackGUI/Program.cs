@@ -1,6 +1,12 @@
 using FullstackGUI.Components;
+using FullstackGUI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddHttpClient<ProductService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7153/api/");
+});
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -17,7 +23,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
 app.UseAntiforgery();
 
