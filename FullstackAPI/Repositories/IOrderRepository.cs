@@ -9,4 +9,7 @@ public interface IOrderRepository
 	Task<Order?> GetByIdAsync(int id);
 	Task AddOrderAsync(int customerId, List<OrderProductRequest> products);
 	Task DeleteAsync(int id);
+	Task<List<OrderOverview>> GetOrderOverviewAsync();
+
+
 }

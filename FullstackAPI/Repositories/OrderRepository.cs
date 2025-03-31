@@ -63,4 +63,32 @@ public class OrderRepository : IOrderRepository
 		}
 	}
 
+    public async Task<List<OrderOverview>> GetOrderOverviewAsync()
+    {
+        var orders = await (from order in _dbContext.Orders
+                            join customer in _dbContext.Customers on order.CustomerId equals customer.Id
+                            select new OrderOverview
+                            {
+                                OrderId = order.Id,
+                                CustomerName = customer.FirstName + " " + customer.LastName,
+                                OrderDate = order.OrderDate,
+                                Products = (from op in _dbContext.OrderProducts
+                                            join product in _dbContext.Products on op.ProductId equals product.Id
+                                            where op.OrderId == order.Id
+                                            select new OrderProductInfo
+                                            {
+                                                ProductId = product.Id,
+                                                ProductName = product.ProductName,
+                                                Brand = product.Brand,
+                                                Quantity = op.Quantity
+                                            }).ToList()
+                            }).ToListAsync();
+
+        return orders;
+    }
+
+
+
+
+
 }

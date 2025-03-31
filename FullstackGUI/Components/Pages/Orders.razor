@@ -1,0 +1,61 @@
+﻿@page "/orders"
+@using FullstackGUI.Services
+@using FullstackGUI.Models
+@rendermode InteractiveServer
+@inject OrderService OrderService
+
+<PageTitle>Orders</PageTitle>
+
+
+<h3>Orderöversikt</h3>
+
+@if (orders == null)
+{
+    <p>Loading...</p>
+}
+else if (!orders.Any())
+{
+    <p>Inga ordrar hittades.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Kund</th>
+                <th>Orderdatum</th>
+                <th>Produkter</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in orders)
+            {
+                <tr>
+                    <td>@order.OrderId</td>
+                    <td>@order.CustomerName</td>
+                    <td>@order.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>
+                        <ul>
+                            @foreach (var product in order.Products)
+                            {
+                                <li>@product.ProductName (@product.Brand) - @product.Quantity st</li>
+                            }
+                        </ul>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private List<OrderOverview> orders;
+
+    protected override async Task OnInitializedAsync()
+    {
+        orders = await OrderService.GetOrderOverviewAsync();
+    }
+}
+}

@@ -7,6 +7,10 @@ builder.Services.AddHttpClient<ProductService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7153/api/");
 });
+builder.Services.AddHttpClient<CustomerService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7153/api/");
+});
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

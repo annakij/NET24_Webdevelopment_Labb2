@@ -85,4 +85,12 @@ public class OrderController : ControllerBase
 		await _orderRepository.DeleteAsync(id);
 		return NoContent();
 	}
+
+    [HttpGet("overview")]
+    public async Task<ActionResult<IEnumerable<OrderOverview>>> GetOrderOverview()
+    {
+        var orders = await _orderRepository.GetOrderOverviewAsync();
+        return Ok(orders);
+    }
+
 }

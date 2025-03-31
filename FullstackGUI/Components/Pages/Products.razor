@@ -4,7 +4,7 @@
 @rendermode InteractiveServer
 @inject ProductService ProductService
 
-<PageTitle>Alla produkter</PageTitle>
+<PageTitle>All Products</PageTitle>
 
 
 <h3>All products</h3>
@@ -135,21 +135,15 @@ else
         products = await ProductService.GetProductsAsync(); 
     }
 
-    private void OpenAddProductModal()
-    {
-        isAddProductModalOpen = true;
-    }
-
-    private void CloseAddProductModal()
-    {
-        isAddProductModalOpen = false;
-    }
-
     private async Task DeleteProduct(int id)
     {
         await ProductService.DeleteProductAsync(id);
         products = await ProductService.GetProductsAsync();
     }
-}
 
+    private void OpenAddProductModal() => isAddProductModalOpen = true;
+
+    private void CloseAddProductModal() => isAddProductModalOpen = false;
+
+}
 }

@@ -1,0 +1,84 @@
+﻿@page "/customers"
+@using FullstackGUI.Services
+@using FullstackGUI.Models
+@rendermode InteractiveServer
+@inject CustomerService CustomerService
+
+<PageTitle>Customers</PageTitle>
+
+<h3>Customers</h3>
+
+@if (customers == null)
+{
+    <p>Loading customers...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Firstname</th>
+                <th>Lastname</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Adress</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var customer in customers)
+            {
+                <tr>
+                    <td>@customer.FirstName</td>
+                    <td>@customer.LastName</td>
+                    <td>@customer.Email</td>
+                    <td>@customer.Phone</td>
+                    <td>@customer.Address</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+
+@code {
+    private IEnumerable<Customer> customers;
+    private string searchQuery = string.Empty;
+    private bool isAddCustomerModalOpen = false;
+    // private Customer newCustomer = new Customer();
+
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await CustomerService.GetCustomersAsync();
+    }
+
+    private async Task SearchCustomerByEmail()
+    {
+        if (!string.IsNullOrEmpty(searchQuery))
+        {
+            customers = await CustomerService.GetCustomerByEmailAsync(searchQuery);
+        }
+        else
+        {
+            customers = await CustomerService.GetCustomersAsync();
+        }
+    }
+
+    // private async Task AddCustomer()
+    // {
+    //     await CustomerService.AddCustomerAsync(newCustomer);
+    //     newCustomer = new Customer();
+    //     CloseAddCustomerModal();
+    //     customers = await CustomerService.GetCustomersAsync();
+    // }
+
+    private async Task DeleteCustomer(int id)
+    {
+        await CustomerService.DeleteCustomerAsync(id);
+        customers = await CustomerService.GetCustomersAsync();
+    }
+
+    private void OpenAddProductModal() => isAddCustomerModalOpen = true;
+
+    private void CloseAddCustomerModal() => isAddCustomerModalOpen = false;
+}
