@@ -44,19 +44,17 @@ public class OrderController : ControllerBase
 
 	// POST api/<OrderController>
 	[HttpPost]
-	public async Task<IActionResult> Post([FromBody] OrderRequest orderRequest)
+	public async Task<IActionResult> Post(OrderRequest orderRequest)
 	{
 		if (orderRequest == null || orderRequest.Products == null || !orderRequest.Products.Any())
 		{
 			return BadRequest("Invalid order data.");
 		}
 
-		// Skicka bara customerId och produkterna, ingen OrderId behövs
 		await _orderRepository.AddOrderAsync(orderRequest.CustomerId, orderRequest.Products);
 
 		return Ok("Order products added successfully.");
 	}
-
 
 	// GET api/<OrderController>/5
 	[HttpGet("{id}")]

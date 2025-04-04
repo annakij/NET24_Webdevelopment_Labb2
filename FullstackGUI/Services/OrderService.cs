@@ -1,4 +1,5 @@
-﻿using FullstackGUI.Models;
+﻿using FullstackAPI.Models;
+using static System.Net.WebRequestMethods;
 
 namespace FullstackGUI.Services;
 
@@ -20,10 +21,22 @@ public class OrderService
     {
         return await _httpClient.GetFromJsonAsync<Order>($"order/{id}");
     }
+    public async Task PlaceOrderAsync(OrderRequest orderRequest)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/order", orderRequest);
 
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Failed to place order. Status: {response.StatusCode}");
+        }
+    }
     public async Task<IEnumerable<Order>> GetByCustomerAsync(int id)
     {
         return await _httpClient.GetFromJsonAsync<IEnumerable<Order>>($"order/search-by-customer/{id}");
+    }
+    public async Task<List<OrderOverview>> GetOrderOverviewAsync()
+    {
+        return await _httpClient.GetFromJsonAsync<List<OrderOverview>>("order/overview");
     }
 
 }

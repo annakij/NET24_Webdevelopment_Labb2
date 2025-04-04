@@ -4,9 +4,8 @@ namespace FullstackAPI.Models;
 
 public class Product
 {
-	[JsonIgnore]
 	public int Id { get; set; }
-	public required string ProductName { get; set; }
+	public string ProductName { get; set; }
 	public string? Brand { get; set; }
 	public string ProductDescription { get; set; } = string.Empty;
 	public string? ProductCategory { get; set; }

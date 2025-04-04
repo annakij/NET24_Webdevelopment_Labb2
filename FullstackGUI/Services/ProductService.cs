@@ -1,4 +1,4 @@
-﻿using FullstackGUI.Models;
+﻿using FullstackAPI.Models;
 
 namespace FullstackGUI.Services;
 

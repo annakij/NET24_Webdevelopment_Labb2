@@ -38,7 +38,7 @@ public class OrderRepository : IOrderRepository
 		var newOrder = new Order
 		{
 			CustomerId = customerId,
-			OrderDate = DateTime.UtcNow,
+			OrderDate = DateTime.UtcNow
 		};
 		_dbContext.Orders.Add(newOrder);
 		await _dbContext.SaveChangesAsync();

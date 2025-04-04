@@ -1,0 +1,259 @@
+﻿@page "/prod"
+@using FullstackGUI.Services
+@using FullstackAPI.Models
+@rendermode InteractiveServer
+@inject ProductService ProductService
+@inject CustomerService CustomerService
+@inject OrderService OrderService
+
+<h2 class="text-2xl font-bold mb-4">Products</h2>
+
+<div class="d-flex justify-content-between mb-3">
+    <div>
+        <input @bind="searchQuery" class="form-control" placeholder="Search by name..." />
+        <button class="btn btn-primary mt-2" @onclick="SearchProductByName">Search</button>
+    </div>
+
+    <div>
+        <button class="btn btn-success mt-2" @onclick="OpenAddProductModal">Add new product</button>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @if (products == null)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        @foreach (var product in products)
+        {
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden mt-5">
+                <div class="p-4">
+                    <h3 class="text-lg font-semibold">@product.ProductName</h3>
+                    <p class="text-gray-500">@product.Brand</p>
+                    <p class="text-sm text-gray-700">@product.ProductDescription</p>
+                    <p class="text-lg font-bold mt-2">@product.Price :-</p>
+                    
+                    <button class="mt-3 bg-blue-500 text-black px-4 py-2 rounded"
+                            @onclick="() => AddToCart(product)">
+                        Add to Cart</button>
+                    <button class="mt-3 ms-2 bg-blue-500 text-black px-4 py-2 rounded" @onclick="() => DeleteProduct(product.Id)">
+                        <Icon Name="IconName.Trash3" />
+                    </button>
+                    <button class="mt-3 ms-2 bg-blue-500 text-black px-4 py-2 rounded" @onclick="() => OpenEditProductModal(product)">
+                        Edit
+                    </button>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@if (isProductModalOpen)
+{
+    <div class="modal" tabindex="-1" style="display: block;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(isEditMode ? "Update Product" : "Add Product")</h5>
+                    <button type="button" class="close" @onclick="CloseProductModal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@productModel" OnValidSubmit="SaveProduct">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="form-group">
+                            <label>Produkt Name</label>
+                            <InputText @bind-Value="productModel.ProductName" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Brand</label>
+                            <InputText @bind-Value="productModel.Brand" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <InputText @bind-Value="productModel.ProductDescription" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <InputText @bind-Value="productModel.ProductCategory" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Price</label>
+                            <InputNumber @bind-Value="productModel.Price" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Add in stock? </label>
+                            <InputCheckbox @bind-Value="productModel.IsInStock" />
+                        </div>
+                        <button type="submit" class="btn btn-success">@(isEditMode ? "Update" : "Add Product")t</button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<button class="btn btn-light position-fixed bottom-0 end-0 m-3" @onclick="OpenCartModal">
+    🛒 Cart (<span>@cartCount</span>)
+</button>
+
+@if (isCartModalOpen)
+{
+    <div class="modal" tabindex="-1" style="display: block;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Shoppingcart</h5>
+                    <button type="button" class="close" @onclick="CloseCartModal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h4>Products</h4>
+                    <ul>
+                        @foreach (var item in cartItems)
+                        {
+                            <li>@item.Product.ProductName - @item.Product.Price</li>
+                        }
+                    </ul>
+
+                    <div class="form-group">
+                        <label for="customerDropdown">Select customer to shop from:</label>
+                        <select id="customerDropdown" class="form-control" @bind="selectedCustomerId">
+                            <option value="">-- Select customer --</option>
+                            @foreach (var customer in customers)
+                            {
+                                <option value="@customer.Id">@customer.FirstName @customer.LastName</option>
+                            }
+                        </select>
+                    </div>
+
+                    <button class="btn btn-success mt-3" @onclick="CompleteOrder">Complete order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    private IEnumerable<Product> products;
+    private string searchQuery = string.Empty;
+    private bool isProductModalOpen = false;
+    private bool isEditMode = false;
+    private Product productModel = new Product();
+
+    //cart code
+    private List<CartItem> cartItems = new List<CartItem>();  // Listan för varukorgen
+    private int cartCount => cartItems.Count;  // Antal produkter i varukorgen
+    private bool isCartModalOpen = false;  // Om varukorgsmodalen är öppen
+    private List<Customer> customers = new List<Customer>();  // Lista för kunder
+    private int selectedCustomerId;  // Håller koll på den valda kundens id
+
+    private void AddToCart(Product product)
+    {
+        cartItems.Add(new CartItem
+            {
+                Product = product, // Lägg till vald produkt
+                Quantity =+ 1 // Lägg till vald kvantitet
+            });
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await ProductService.GetProductsAsync();
+        customers = await CustomerService.GetCustomersAsync();
+    }
+
+    private void OpenCartModal() => isCartModalOpen = true;
+    private void CloseCartModal() => isCartModalOpen = false;
+
+    private async Task CompleteOrder()
+    {
+        // Skapa en lista av OrderProductRequest baserat på varukorgen (CartItem)
+        var orderProducts = cartItems.Select(cartItem => new OrderProductRequest
+            {
+                ProductId = cartItem.Product.Id,    // Hämta produktens ID från CartItem
+                Quantity = cartItem.Quantity // Hämta mängden från CartItem
+            }).ToList();
+
+        // Skapa OrderRequest med vald kund och orderprodukter
+        var orderRequest = new OrderRequest
+            {
+                CustomerId = selectedCustomerId,
+                Products = orderProducts
+            };
+
+        // Skicka ordern via OrderService
+        await OrderService.PlaceOrderAsync(orderRequest);
+
+        // Töm varukorgen och stäng modalen
+        cartItems.Clear();  // Töm CartItem-listan istället för den ursprungliga varukorgen
+        CloseCartModal();
+    }
+
+    //product code
+    private async Task SearchProductByName()
+    {
+        if (!string.IsNullOrEmpty(searchQuery))
+        {
+            products = await ProductService.GetProductByNameAsync(searchQuery);
+        }
+        else
+        {
+            products = await ProductService.GetProductsAsync();
+        }
+    }
+
+    private async Task SaveProduct()
+    {
+        if (isEditMode)
+        {
+            var productId = productModel.Id;
+            await ProductService.UpdateProductAsync(productId, productModel);
+        }
+        else
+        {
+            await ProductService.AddProductAsync(productModel);
+        }
+        customers = await CustomerService.GetCustomersAsync();
+        CloseProductModal();
+    }
+
+    private async Task DeleteProduct(int id)
+    {
+        await ProductService.DeleteProductAsync(id);
+        products = await ProductService.GetProductsAsync();
+    }
+
+    private void OpenAddProductModal()
+    {
+        productModel = new Product();
+        isEditMode = false;
+        isProductModalOpen = true;
+    }
+
+    private void OpenEditProductModal(Product product)
+    {
+        productModel = new Product
+            {
+                Id = product.Id,
+                ProductName = product.ProductName,
+                Brand = product.Brand,
+                ProductDescription = product.ProductDescription,
+                ProductCategory = product.ProductCategory,
+                Price = product.Price,
+                IsInStock = product.IsInStock
+            };
+        isEditMode = true;
+        isProductModalOpen = true;
+    }
+    private void CloseProductModal() => isProductModalOpen = false;
+
+}
+

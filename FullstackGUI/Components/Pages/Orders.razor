@@ -1,13 +1,13 @@
 ﻿@page "/orders"
 @using FullstackGUI.Services
-@using FullstackGUI.Models
+@using FullstackAPI.Models
 @rendermode InteractiveServer
 @inject OrderService OrderService
 
 <PageTitle>Orders</PageTitle>
 
 
-<h3>Orderöversikt</h3>
+<h3>Orders</h3>
 
 @if (orders == null)
 {
@@ -15,7 +15,7 @@
 }
 else if (!orders.Any())
 {
-    <p>Inga ordrar hittades.</p>
+    <p>No orders found.</p>
 }
 else
 {
@@ -23,9 +23,9 @@ else
         <thead>
             <tr>
                 <th>Order ID</th>
-                <th>Kund</th>
-                <th>Orderdatum</th>
-                <th>Produkter</th>
+                <th>Customer</th>
+                <th>OrderDate</th>
+                <th>Products</th>
             </tr>
         </thead>
         <tbody>
@@ -39,7 +39,7 @@ else
                         <ul>
                             @foreach (var product in order.Products)
                             {
-                                <li>@product.ProductName (@product.Brand) - @product.Quantity st</li>
+                                <li>@product.ProductName (@product.Brand) x @product.Quantity</li>
                             }
                         </ul>
                     </td>
@@ -57,5 +57,4 @@ else
     {
         orders = await OrderService.GetOrderOverviewAsync();
     }
-}
 }
