@@ -15,7 +15,12 @@ public class ProductController : ControllerBase
     {
         _productRepository = productRepository;
     }
-    
+
+    /// <summary>
+    /// Returns all products from the database.
+    /// </summary>
+    /// <response code="200">Return a list of products.</response>
+    /// <response code="404">Return "There are no products listed."</response>
     // GET: api/<ProductController>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Product>>> GetAllProducts()
@@ -29,6 +34,11 @@ public class ProductController : ControllerBase
         return Ok(products);
     }
 
+    /// <summary>
+    /// Returns product with selected ID from the database.
+    /// </summary>
+    /// <response code="200">Return selected product.</response>
+    /// <response code="404">Return "There is no product with that ID-number."</response>
     // GET api/<ProductController>/5
     [HttpGet("{id}")]
     public async Task<ActionResult<Product?>> GetProductById(int id)
@@ -42,8 +52,13 @@ public class ProductController : ControllerBase
         return Ok(product);
     }
 
-	// GET api/<ProductController>/top
-	[HttpGet("search-name/{name}")]
+    /// <summary>
+    /// Returns all products with name that contains search query from the database.
+    /// </summary>
+    /// <response code="200">Returns a list of products.</response>
+    /// <response code="404">Return "There is no product in stock with that name."</response>
+    // GET api/<ProductController>/top
+    [HttpGet("search-name/{name}")]
 	public async Task<ActionResult<Product?>> GetProductByName(string name)
 	{
 		var product = await _productRepository.GetByNameAsync(name);
@@ -55,8 +70,12 @@ public class ProductController : ControllerBase
 		return Ok(product);
 	}
 
-	// POST api/<ProductController>
-	[HttpPost]
+    /// <summary>
+    /// Add product to database.
+    /// </summary>
+    /// <response code="200">Return "Product was succefully added."</response>
+    // POST api/<ProductController>
+    [HttpPost]
     public async Task<ActionResult> AddProduct(Product product)
     {
         await _productRepository.AddAsync(product);
@@ -64,6 +83,11 @@ public class ProductController : ControllerBase
         return Ok("Product was succefully added.");
     }
 
+    /// <summary>
+    /// Update product information.
+    /// </summary>
+    /// <response code="200">Return no content</response>
+    /// <response code="404">Return "There is no product with that ID-number. Could not complete requested action."</response>
     // PUT api/<ProductController>/5
     [HttpPut("{id}")]
 	public async Task<ActionResult> UpdateProduct(int id, Product product)
@@ -78,6 +102,11 @@ public class ProductController : ControllerBase
 		return NoContent();
 	}
 
+    /// <summary>
+    /// Delete product from database.
+    /// </summary>
+    /// <response code="200">Return no content</response>
+    /// <response code="404">Return "There is no product in stock with that ID-number. Could not complete requested action."</response>
     // DELETE api/<ProductController>/5
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteProduct(int id)

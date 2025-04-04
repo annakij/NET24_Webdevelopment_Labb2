@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using FullstackAPI.Models;
 using FullstackAPI.Repositories;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,9 +22,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(options =>
 {
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath);
+
     options.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Annas E-Handel API",
+        Title = "Annas E-Commerce API",
         Version = "v1",
         Description = "This is a simple API for an E-Commerce clothing website",
         Contact = new OpenApiContact

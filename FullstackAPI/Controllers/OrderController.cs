@@ -16,8 +16,13 @@ public class OrderController : ControllerBase
 		_orderRepository = orderRepository;
 	}
 
-	// GET: api/<OrderController>
-	[HttpGet]
+    /// <summary>
+    /// Returns all orders from the database.
+    /// </summary>
+    /// <response code="200">Return a list of orders.</response>
+    /// <response code="404">Return "There are no orders listed."</response>
+    // GET: api/<OrderController>
+    [HttpGet]
     public async Task<ActionResult<IEnumerable<Order>>> GetAllOrders()
     {
         var orders = await _orderRepository.GetAllAsync();
@@ -29,6 +34,11 @@ public class OrderController : ControllerBase
         return Ok(orders);
     }
 
+    /// <summary>
+    /// Returns order from selected customer from the database.
+    /// </summary>
+    /// <response code="200">Return selected orders.</response>
+    /// <response code="404">Return "No orders with that customer-id was found."</response>
     // GET api/<OrderController>/5
     [HttpGet("search-by-customer/{id}")]
     public async Task<ActionResult<IEnumerable<Order>>> GetOrdersByCustomer(int id)
@@ -37,13 +47,18 @@ public class OrderController : ControllerBase
 
         if (orders == null)
         {
-            return NotFound("No orders with that id was found.");
+            return NotFound("No orders with that customer-id was found.");
         }
         return Ok(orders);
     }
 
-	// POST api/<OrderController>
-	[HttpPost]
+    /// <summary>
+    /// Add order to database.
+    /// </summary>
+    /// <response code="200">Return "Order added successfully."</response>
+    /// <response code="400">Return "Invalid order data."</response>
+    // POST api/<OrderController>
+    [HttpPost]
 	public async Task<IActionResult> Post(OrderRequest orderRequest)
 	{
 		if (orderRequest == null || orderRequest.Products == null || !orderRequest.Products.Any())
@@ -53,11 +68,16 @@ public class OrderController : ControllerBase
 
 		await _orderRepository.AddOrderAsync(orderRequest.CustomerId, orderRequest.Products);
 
-		return Ok("Order products added successfully.");
+		return Ok("Order added successfully.");
 	}
 
-	// GET api/<OrderController>/5
-	[HttpGet("{id}")]
+    /// <summary>
+    /// Returns order with selected ID from the database.
+    /// </summary>
+    /// <response code="200">Return selected order.</response>
+    /// <response code="404">Return not found</response>
+    // GET api/<OrderController>/5
+    [HttpGet("{id}")]
 	public async Task<IActionResult> GetOrderById(int id)
 	{
 		var order = await _orderRepository.GetByIdAsync(id);
@@ -70,20 +90,29 @@ public class OrderController : ControllerBase
 		return Ok(order);
 	}
 
-	// DELETE api/<OrderController>/5
-	[HttpDelete("{id}")]
+    /// <summary>
+    /// Delete order from database.
+    /// </summary>
+    /// <response code="200">Return no content</response>
+    /// <response code="404">Return "There is no order with that ID-number. Could not complete requested action."</response>
+    // DELETE api/<OrderController>/5
+    [HttpDelete("{id}")]
 	public async Task<IActionResult> DeleteOrder(int id)
 	{
 		var order = await _orderRepository.GetByIdAsync(id);
 		if (order == null)
 		{
-			return NotFound($"Order with ID {id} not found.");
+			return NotFound("There is no order with that ID-number. Could not complete requested action.");
 		}
 
 		await _orderRepository.DeleteAsync(id);
 		return NoContent();
 	}
 
+    /// <summary>
+    /// Returns order view from database.
+    /// </summary>
+    /// <response code="200">Return view</response>
     [HttpGet("overview")]
     public async Task<ActionResult<IEnumerable<OrderOverview>>> GetOrderOverview()
     {

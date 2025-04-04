@@ -1,15 +1,11 @@
 ﻿@page "/customers"
+@rendermode InteractiveServer
 @using FullstackGUI.Services
 @using FullstackAPI.Models
-@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Forms
 @inject CustomerService CustomerService
 
 <PageTitle>Customers</PageTitle>
-
-<head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
-</head>
-
 
 <h3>Customers</h3>
 
