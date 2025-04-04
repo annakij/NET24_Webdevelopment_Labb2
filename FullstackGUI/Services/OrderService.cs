@@ -1,4 +1,6 @@
 ﻿using FullstackAPI.Models;
+using System.Text.Json;
+using System.Text;
 using static System.Net.WebRequestMethods;
 
 namespace FullstackGUI.Services;
@@ -23,13 +25,17 @@ public class OrderService
     }
     public async Task PlaceOrderAsync(OrderRequest orderRequest)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/order", orderRequest);
+        var jsonContent = JsonSerializer.Serialize(orderRequest);
+        var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+        var response = await _httpClient.PostAsync("order", content);
 
         if (!response.IsSuccessStatusCode)
         {
             throw new Exception($"Failed to place order. Status: {response.StatusCode}");
         }
     }
+
     public async Task<IEnumerable<Order>> GetByCustomerAsync(int id)
     {
         return await _httpClient.GetFromJsonAsync<IEnumerable<Order>>($"order/search-by-customer/{id}");

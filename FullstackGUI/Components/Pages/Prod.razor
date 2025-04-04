@@ -119,7 +119,10 @@
                     <ul>
                         @foreach (var item in cartItems)
                         {
-                            <li>@item.Product.ProductName - @item.Product.Price</li>
+                            <li>
+                                @item.Product.ProductName - @item.Product.Price
+                                <button class="btn btn-sm btn-danger ml-2 mt-2" @onclick="() => RemoveFromCart(item)">X</button>
+                            </li>
                         }
                     </ul>
 
@@ -150,19 +153,24 @@
     private Product productModel = new Product();
 
     //cart code
-    private List<CartItem> cartItems = new List<CartItem>();  // Listan för varukorgen
-    private int cartCount => cartItems.Count;  // Antal produkter i varukorgen
-    private bool isCartModalOpen = false;  // Om varukorgsmodalen är öppen
-    private List<Customer> customers = new List<Customer>();  // Lista för kunder
-    private int selectedCustomerId;  // Håller koll på den valda kundens id
+    private List<CartItem> cartItems = new List<CartItem>();
+    private int cartCount => cartItems.Count;
+    private bool isCartModalOpen = false;
+    private List<Customer> customers = new List<Customer>();
+    private int selectedCustomerId;
 
     private void AddToCart(Product product)
     {
         cartItems.Add(new CartItem
             {
-                Product = product, // Lägg till vald produkt
-                Quantity =+ 1 // Lägg till vald kvantitet
+                Product = product,
+                Quantity =+ 1
             });
+    }
+
+    private void RemoveFromCart(CartItem itemToRemove)
+    {
+        cartItems.Remove(itemToRemove);
     }
 
     protected override async Task OnInitializedAsync()
@@ -176,25 +184,21 @@
 
     private async Task CompleteOrder()
     {
-        // Skapa en lista av OrderProductRequest baserat på varukorgen (CartItem)
         var orderProducts = cartItems.Select(cartItem => new OrderProductRequest
             {
-                ProductId = cartItem.Product.Id,    // Hämta produktens ID från CartItem
-                Quantity = cartItem.Quantity // Hämta mängden från CartItem
+                ProductId = cartItem.Product.Id, 
+                Quantity = cartItem.Quantity
             }).ToList();
 
-        // Skapa OrderRequest med vald kund och orderprodukter
         var orderRequest = new OrderRequest
             {
                 CustomerId = selectedCustomerId,
                 Products = orderProducts
             };
 
-        // Skicka ordern via OrderService
         await OrderService.PlaceOrderAsync(orderRequest);
 
-        // Töm varukorgen och stäng modalen
-        cartItems.Clear();  // Töm CartItem-listan istället för den ursprungliga varukorgen
+        cartItems.Clear();
         CloseCartModal();
     }
 

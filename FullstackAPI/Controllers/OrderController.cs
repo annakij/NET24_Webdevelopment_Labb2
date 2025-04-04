@@ -59,7 +59,7 @@ public class OrderController : ControllerBase
     /// <response code="400">Return "Invalid order data."</response>
     // POST api/<OrderController>
     [HttpPost]
-	public async Task<IActionResult> Post(OrderRequest orderRequest)
+	public async Task<IActionResult> Post([FromBody] OrderRequest orderRequest)
 	{
 		if (orderRequest == null || orderRequest.Products == null || !orderRequest.Products.Any())
 		{
